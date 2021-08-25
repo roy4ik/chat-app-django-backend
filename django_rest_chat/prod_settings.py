@@ -42,6 +42,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'rest_framework.authtoken'
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -61,7 +62,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'django_rest_chat.urls'
 
-REST_FRAMEWORK = {}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
 
 TEMPLATES = [
     {
