@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'chat',
     'accounts',
+    'guardian',
 ]
 
 MIDDLEWARE = [
@@ -70,6 +71,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ]
 }
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 TEMPLATES = [
     {
