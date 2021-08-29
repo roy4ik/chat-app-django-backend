@@ -31,6 +31,10 @@ class ConversationViewSet(ModelViewSet):
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['get'])
     def get_queryset(self):
+        """get all conversations that the user participates in.
+            note: this is only for get methods as this includes other user's conversations
+        """
         return Conversation.objects.filter(Q(created_by=self.request.user)
                                            | Q(participants__exact=self.request.user)).distinct()
