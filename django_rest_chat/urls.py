@@ -20,7 +20,7 @@ from rest_framework import routers
 
 from chat.api_views.conversations_view_set import ConversationViewSet
 
-router = routers.SimpleRouter(trailing_slash=True)
+router = routers.SimpleRouter(trailing_slash=False)
 router.register(r'Conversation', ConversationViewSet, basename='Conversation')
 
 urlpatterns = [
