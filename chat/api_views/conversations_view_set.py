@@ -6,9 +6,8 @@ from rest_framework.response import Response
 from chat.models import Conversation
 from chat.serializers.conversations_serializers import ConversationSerializer
 from rest_framework.decorators import action
-from typing import Union, List, Iterator
+from typing import Union, List
 from django.db.models import QuerySet
-# messages view sets
 
 
 class ConversationViewSet(ModelViewSet):
