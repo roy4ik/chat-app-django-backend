@@ -17,13 +17,17 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = [
             'id',
+            'created_by',
             'conversation_id',
             'date_created',
             'date_updated',
-            'created_by',
             'subject',
             'content',
             'recipients',
+        ]
+        read_only_fields = [
+            'id',
+            'created_by',
         ]
         depth = 5
 

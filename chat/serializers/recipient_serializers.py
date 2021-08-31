@@ -13,4 +13,7 @@ class RecipientSerializer(serializers.ModelSerializer):
             'date_read',
             'recipient_user',
         ]
+        read_only_fields = [
+            'id',
+        ]
         depth = 1

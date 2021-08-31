@@ -17,10 +17,12 @@ class ConversationSerializer(serializers.ModelSerializer):
             'id',
             'name',
             'created_by',
+            'date_created',
             'participants'
         ]
         read_only_fields = [
             'id',
+            'created_by',
             'date_created',
         ]
 
