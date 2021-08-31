@@ -8,7 +8,6 @@ from django.dispatch import receiver
 
 # Create your models here.
 class Conversation(models.Model):
-    is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=128, blank=False, null=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE,
                                    blank=False, null=False)
@@ -25,7 +24,6 @@ class Message(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner')
     date_created = models.DateField(auto_now_add=True)
     date_updated = models.DateField(auto_now=True)
-    is_active = models.BooleanField(default=True)
     subject = models.CharField(max_length=128, blank=False, null=False)
     content = models.CharField(max_length=1024)
     recipients = models.ManyToManyField('Recipient', related_name='read_statuses')
