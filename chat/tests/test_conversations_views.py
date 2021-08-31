@@ -39,6 +39,18 @@ class GetConversationListTest(ConversationTestBase):
             auth_user=self.sender)
         self.assertListEqual([], response.data)
 
+    def test_get_forbidden_conversation_list(self):
+        conversations = [self.setUpConversation() for conversation in range(5)]
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=None,
+            viewset_class=ConversationViewSet,
+            method='get',
+            action='list',
+            auth_user=self.no_access_user)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertListEqual(response.data, [])
+
 
 class GetSingleConversationTest(ConversationTestBase):
     serializer = ConversationSerializer
@@ -66,6 +78,18 @@ class GetSingleConversationTest(ConversationTestBase):
             action='retrieve',
             auth_user=self.sender,
             pk=Conversation.objects.all().count())
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_forbidden_single_conversation(self):
+        conversation = self.setUpConversation()
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=None,
+            viewset_class=ConversationViewSet,
+            method='get',
+            action='retrieve',
+            auth_user=self.no_access_user,
+            pk=conversation.id)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -96,13 +120,15 @@ class CreateConversationTest(ConversationTestBase):
             auth_user=self.sender)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    # no forbidden test for create as every user can create a conversation
+
 
 class UpdateConversationTest(ConversationTestBase):
     def test_update_valid_conversation(self):
         conversation = self.setUpConversation()
         data = {
             "name": "New Conversation",
-            "participants": [self.recipient.id],
+            "participants": [self.recipient.id, self.sender.id],
         }
         response = self.return_viewset_response(
             url=reverse('Conversation-list'),
@@ -127,6 +153,22 @@ class UpdateConversationTest(ConversationTestBase):
             auth_user=self.sender,
             pk=conversation.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_forbidden_conversation(self):
+        conversation = self.setUpConversation()
+        data = {
+            "name": "New Conversation",
+            "participants": [self.recipient.id, self.sender.id],
+        }
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=data,
+            viewset_class=ConversationViewSet,
+            method='put',
+            action='update',
+            auth_user=self.no_access_user,
+            pk=conversation.id)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class DeleteConversationTest(ConversationTestBase):
@@ -157,6 +199,18 @@ class DeleteConversationTest(ConversationTestBase):
             pk=Conversation.objects.all().count())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-# TODO: No AccessTests
-
-# TODO: No PermissionTests
+    def test_delete_forbidden_conversation(self):
+        conversation = self.setUpConversation()
+        data = {
+            "name": "New Conversation",
+            "participants": [self.recipient.id],
+        }
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=data,
+            viewset_class=ConversationViewSet,
+            method='delete',
+            action='destroy',
+            auth_user=self.no_access_user,
+            pk=conversation.id)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
