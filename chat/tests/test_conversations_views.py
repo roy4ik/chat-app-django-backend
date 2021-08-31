@@ -13,97 +13,150 @@ client = APIClient()
 requests_factory = APIRequestFactory()
 
 
+class GetConversationListTest(ConversationTestBase):
+    serializer = ConversationSerializer
+
+    def test_get_valid_conversation_list(self):
+        conversations = [self.setUpConversation() for conversation in range(5)]
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=None,
+            viewset_class=ConversationViewSet,
+            method='get',
+            action='list',
+            auth_user=self.sender)
+        serializer = self.serializer(conversations, many=True)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertListEqual(response.data, serializer.data)
+
+    def test_get_invalid_conversation_list(self):
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=None,
+            viewset_class=ConversationViewSet,
+            method='get',
+            action='list',
+            auth_user=self.sender)
+        self.assertListEqual([], response.data)
+
+
 class GetSingleConversationTest(ConversationTestBase):
+    serializer = ConversationSerializer
+
     def test_get_valid_single_conversation(self):
         conversation = self.setUpConversation()
-        url = reverse('Conversation-list')
-        request = requests_factory.get(url, format='json')
-        view = ConversationViewSet.as_view({"get": "retrieve"})
-        force_authenticate(request, user=conversation.created_by, token=conversation.created_by.auth_token)
-        response = view(request, pk=conversation.id)
-        serializer = ConversationSerializer(conversation)
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=None,
+            viewset_class=ConversationViewSet,
+            method='get',
+            action='retrieve',
+            auth_user=self.sender,
+            pk=conversation.id)
+        serializer = self.serializer(conversation)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
 
     def test_get_invalid_single_conversation(self):
-        url = reverse('Conversation-list')
-        request = requests_factory.get(url, format='json')
-        view = ConversationViewSet.as_view({"get": "retrieve"})
-        force_authenticate(request, user=self.sender, token=self.sender.auth_token)
-        response = view(request, pk=Conversation.objects.all().count())
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=None,
+            viewset_class=ConversationViewSet,
+            method='get',
+            action='retrieve',
+            auth_user=self.sender,
+            pk=Conversation.objects.all().count())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class CreateConversationTest(ConversationTestBase):
+    # serializer = ConversationSerializer
+
     def test_create_valid_conversation(self):
-        url = reverse('Conversation-list')
         data = {
             "name": "New Conversation",
             "participants": [self.recipient.id],
         }
-        request = requests_factory.post(url, format='json', data=data)
-        view = ConversationViewSet.as_view({"post": "create"})
-        force_authenticate(request, user=self.sender, token=self.sender.auth_token)
-        response = view(request, kwargs=data)
-        # serializer = ConversationSerializer(response)
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=data,
+            viewset_class=ConversationViewSet,
+            method='post',
+            action='create',
+            auth_user=self.sender)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # self.assertEqual(response.data, serializer.data)
 
     def test_create_invalid_conversation(self):
-        url = reverse('Conversation-list')
-        request = requests_factory.post(url, format='json')
-        view = ConversationViewSet.as_view({"post": "create"})
-        force_authenticate(request, user=self.sender, token=self.sender.auth_token)
-        response = view(request)
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=None,
+            viewset_class=ConversationViewSet,
+            method='post',
+            action='create',
+            auth_user=self.sender)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateConversationTest(ConversationTestBase):
     def test_update_valid_conversation(self):
         conversation = self.setUpConversation()
-        url = reverse('Conversation-list')
         data = {
             "name": "New Conversation",
             "participants": [self.recipient.id],
         }
-        request = requests_factory.put(url, format='json', data=data)
-        view = ConversationViewSet.as_view({"put": "update"})
-        force_authenticate(request, user=self.sender, token=self.sender.auth_token)
-        response = view(request, pk=conversation.id, kwargs=data)
-        # serializer = ConversationSerializer(response)
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=data,
+            viewset_class=ConversationViewSet,
+            method='put',
+            action='update',
+            auth_user=self.sender,
+            pk=conversation.id)
+        serializer = ConversationSerializer(conversation)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # self.assertEqual(response.data, serializer.data)
+        self.assertNotEqual(response.data, serializer.data)
 
     def test_update_invalid_conversation(self):
         conversation = self.setUpConversation()
-        url = reverse('Conversation-list')
-        request = requests_factory.put(url, format='json')
-        view = ConversationViewSet.as_view({"put": "update"})
-        force_authenticate(request, user=self.sender, token=self.sender.auth_token)
-        response = view(request, pk=conversation.id)
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=None,
+            viewset_class=ConversationViewSet,
+            method='put',
+            action='update',
+            auth_user=self.sender,
+            pk=conversation.id)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class DeleteConversationTest(ConversationTestBase):
     def test_delete_valid_conversation(self):
         conversation = self.setUpConversation()
-        url = reverse('Conversation-list')
         data = {
             "name": "New Conversation",
             "participants": [self.recipient.id],
         }
-        request = requests_factory.put(url, format='json', data=data)
-        view = ConversationViewSet.as_view({"put": "destroy"})
-        force_authenticate(request, user=self.sender, token=self.sender.auth_token)
-        response = view(request, pk=conversation.id, kwargs=data)
-        # serializer = ConversationSerializer(response)
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=data,
+            viewset_class=ConversationViewSet,
+            method='delete',
+            action='destroy',
+            auth_user=self.sender,
+            pk=conversation.id)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # self.assertEqual(response.data, serializer.data)
 
     def test_delete_invalid_conversation(self):
-        url = reverse('Conversation-list')
-        request = requests_factory.put(url, format='json')
-        view = ConversationViewSet.as_view({"put": "destroy"})
-        force_authenticate(request, user=self.sender, token=self.sender.auth_token)
-        response = view(request, pk=Conversation.objects.all().count()+1)
+        response = self.return_viewset_response(
+            url=reverse('Conversation-list'),
+            data=None,
+            viewset_class=ConversationViewSet,
+            method='delete',
+            action='destroy',
+            auth_user=self.sender,
+            pk=Conversation.objects.all().count())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+# TODO: No AccessTests
+
+# TODO: No PermissionTests

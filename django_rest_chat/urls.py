@@ -22,6 +22,7 @@ from chat.api_views.conversations_view_set import ConversationViewSet
 
 router = routers.SimpleRouter(trailing_slash=False)
 router.register(r'Conversation', ConversationViewSet, basename='Conversation')
+router.register(r'Message', ConversationViewSet, basename='Message')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -11,45 +11,61 @@ class ConversationTestCase(ConversationTestBase):
             conversation = self.setUpConversation()
             assert conversation
         else:
-            conversation, message = self.setUp_conversation_with_messages()
+            conversation, messages = self.setUp_conversation_with_messages()
             assert conversation
-            assert message
+            assert messages
 
     def test_message_read(self, read=True, reader=None):
         if not reader:
             reader = self.recipient
-        conversation = self.setUp_conversation_with_messages()
-        messages = Message.objects.filter(conversation=conversation,
-                                          recipients__recipient__exact=reader)
+        conversation, messages = self.setUp_conversation_with_messages()
+        messages = Message.objects.filter(conversation=conversation, recipients__recipient_user=reader)
         for message in messages:
-            recipient = message.recipients.get(recipient=reader)
-            if read:
+            recipient = message.recipients.filter(recipient_user=reader).first()
+            if read and recipient:
                 assert recipient.set_read()
 
-    def test_retrieve_all_user_conversations_messages(self):
+    def test_retrieve_all_user_conversations_messages(self, n_conversations=3):
         user = self.sender
-        conversation1 = self.setUp_conversation_with_messages()
-        conversation2 = self.setUp_conversation_with_messages()
-        conversation3 = self.setUp_conversation_with_messages()
+        conversations_list = []
+        messages_lists = []
+        for conv in range(n_conversations):
+            conversation, messages = self.setUp_conversation_with_messages()
+            conversations_list.append(conversation)
+            messages_lists.append(messages)
         q_conversations = Conversation.objects.filter(Q(created_by=user) | Q(participants__exact=user)).distinct()
-        assert ([conversation.id for conversation in q_conversations.all()] == [conversation1.id, conversation2.id,
-                                                                                conversation3.id])
+        assert [conv for conv in q_conversations.all()] == conversations_list
         # messages = Message.objects.filter(conversation__in=q_conversations)
-        messages = Message.objects.filter(conversation__in=q_conversations).prefetch_related()
+        messages_by_user = []
+        [[messages_by_user.append(message) for message in conversation]
+         for conversation in messages_lists]
+        assert [message for message in messages_lists for messages_list in messages_lists]
 
-    def test_retrieve_all_user_created_messages(self):
+    def test_retrieve_all_user_created_messages(self, n_conversations=3):
         user = self.sender
-        conversation = self.setUp_conversation_with_messages()
-        conversation2 = self.setUp_conversation_with_messages()
-        conversation3 = self.setUp_conversation_with_messages()
-        messages = Message.objects.filter(created_by=self.sender)
+        conversations_list = []
+        messages_lists = []
+        for conv in range(n_conversations):
+            conversation, messages = self.setUp_conversation_with_messages()
+            conversations_list.append(conversation)
+            messages_lists.append(messages)
+        messages_query = [m for m in Message.objects.filter(
+            created_by=user)]
+        messages_by_user = []
+        [[messages_by_user.append(message) for message in conversation
+          if message.created_by == user]
+         for conversation in messages_lists]
+        assert messages_by_user == messages_query
 
-    def test_retrieve_all_user_received_unread(self):
+    def test_retrieve_all_user_received_unread(self, n_conversations=3):
         user = self.sender
-        conversation = self.setUp_conversation_with_messages()
-        conversation2 = self.setUp_conversation_with_messages()
-        conversation3 = self.setUp_conversation_with_messages()
-        messages = Message.objects.filter(recipients__recipient__exact=user)
+        conversations_list = []
+        messages_lists = []
+        for conv in range(n_conversations):
+            conversation, messages = self.setUp_conversation_with_messages()
+            conversations_list.append(conversation)
+            messages_lists.append(messages)
+        messages = Message.objects.filter(recipients__recipient_user=user)
         for message in messages:
             for recipient in message.recipients.all():
                 assert not recipient.is_read()
