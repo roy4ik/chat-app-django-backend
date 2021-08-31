@@ -10,6 +10,7 @@ from rest_framework.test import APIClient
 client = APIClient()
 requests_factory = APIRequestFactory()
 
+
 class ConversationTestBase(TestCase):
 
     def setUp(self):
@@ -18,6 +19,9 @@ class ConversationTestBase(TestCase):
             username='jacob', first_name="jacob", last_name="Jacobs", email='jacob@gmail.com', password='top_secret')
         self.recipient = User.objects.create_user(
             username='mark', first_name="mark", last_name="Marks", email='mark@gmail.com', password='super_top_secret')
+        self.no_access_user = User.objects.create_user(
+            username='noaccess', first_name="noaccess", last_name="noaccess", email='noaccess@gmail.com',
+            password='super_top_secret')
 
     def setUp_message(self, conversation, subject, content, flip_sender_recipient=False):
         if flip_sender_recipient:
@@ -65,14 +69,13 @@ class ConversationTestBase(TestCase):
 
     @staticmethod
     def assert_message_read(message, reader):
-        message.recipients.get(recipient=reader).set_read()
-        return message
+        assert message.recipients.get(recipient=reader).set_read()
 
     def mark__conversation_read(self, conversation, reader):
         messages = Message.objects.filter(conversation=conversation,
                                           recipients__recipient__exact=reader)
         read_messages = [self.set_message_read(message, reader) for message in messages]
-        [self.assert_message_read(message, reader) for message in messages]
+        [self.assert_message_read(message, reader) for message in read_messages]
 
     def return_viewset_response(self, url, data, viewset_class, method, action, auth_user, pk=None):
         """sets up conversation view with force authenticate"""
