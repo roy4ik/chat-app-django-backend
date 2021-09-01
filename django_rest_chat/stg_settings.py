@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_spectacular',
     'rest_framework',
     'chat',
     'accounts',
@@ -67,8 +68,9 @@ ROOT_URLCONF = 'django_rest_chat.urls'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ]
+        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+    ],
 }
 
 AUTHENTICATION_BACKENDS = (
@@ -99,8 +101,12 @@ WSGI_APPLICATION = 'django_rest_chat.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': CONFIG['dbs']['chat']['db_name'].as_str(),
+        'USER': CONFIG['dbs']['chat']['username'].as_str(),
+        'PASSWORD': CONFIG['dbs']['chat']['password'].as_str(),
+        'HOST': CONFIG['dbs']['chat']['host'].as_str(),
+        'PORT': CONFIG['dbs']['chat']['port'].as_str(),
     }
 }
 
