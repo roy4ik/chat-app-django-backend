@@ -36,7 +36,7 @@ class ConversationSerializer(serializers.ModelSerializer):
 
         with transaction.atomic():
             user = self.context.get('request').user
-            conversation = Conversation.objects.create(created_by=user)
+            conversation = Conversation.objects.create(name=validated_data.get('name'), created_by=user)
             conversation.save()
             for participant_user in participants_data:
                 try:
