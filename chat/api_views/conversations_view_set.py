@@ -31,7 +31,7 @@ class ConversationViewSet(ModelViewSet):
             # get all conversations that the user participates in.
             # note: this is only for get methods as this includes other user's conversations
             if self.action == 'retrieve':
-                Conversation.objects.filter(Q(created_by=self.request.user)
+                return Conversation.objects.filter(Q(created_by=self.request.user)
                                             | Q(participants__exact=self.request.user),
                                             pk=self.kwargs.get('pk')).distinct()
             return Conversation.objects.filter(Q(created_by=self.request.user)
