@@ -10,7 +10,8 @@ from chat.serializers.user_serializer import UserSerializer
 class ConversationSerializer(serializers.ModelSerializer):
     """Serializers Conversations"""
     name = serializers.CharField(max_length=128)
-    created_by = UserSerializer(many=False, required=False)
+    created_by = UserSerializer(many=False, required=False,
+                                read_only=True)
 
     class Meta:
         model = Conversation
