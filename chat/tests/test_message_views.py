@@ -1,10 +1,7 @@
 from rest_framework.reverse import reverse
 from rest_framework import status
 from .conversation_test_helpers import ConversationTestBase
-from .test_conversations_views import requests_factory
 from ..api_views.messages_view_set import MessageViewSet
-from rest_framework.test import force_authenticate
-
 from ..models import Conversation
 from ..serializers.messages_serializers import MessageSerializer
 
