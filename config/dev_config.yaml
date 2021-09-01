@@ -1,2 +1,10 @@
 keys:
   django: /Users/royaltstadter/Documents/programming/project_keys/django_rest_chat/django_secret.txt
+
+dbs:
+  chat:
+    db_name: chat_db
+    username: db_admin
+    password: Test12345TestPassword
+    host: localhost
+    port: ''
