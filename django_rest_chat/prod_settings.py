@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from pathlib import Path
 import os
-import confuse
+# import confuse
 import django_heroku
 
 # !!!!! SET DJANGO_SETTINGS_MODULE=django_rest_chat.dev_settings in your environment variables
@@ -21,17 +21,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # set DJANGO_SETTINGS_MODULE=django_rest_chat.dev_settings
 # Configuration file
-CONFIG = confuse.Configuration('rest-chat')
-CONFIG.set_file(os.path.join(BASE_DIR, 'config/prod_config.yaml'))
-
-
-def read_key_from_file(key_name):
-    with open(CONFIG['keys'][key_name].as_filename()) as f:
-        return f.read().strip()
+# CONFIG = confuse.Configuration('rest-chat')
+# CONFIG.set_file(os.path.join(BASE_DIR, 'config/prod_config.yaml'))
+#
+#
+# def read_key_from_file(key_name):
+#     with open(CONFIG['keys'][key_name].as_filename()) as f:
+#         return f.read().strip()
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = read_key_from_file('django')
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -98,13 +98,13 @@ WSGI_APPLICATION = 'django_rest_chat.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+#
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
