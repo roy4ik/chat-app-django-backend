@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # set DJANGO_SETTINGS_MODULE=django_rest_chat.dev_settings
 # Configuration file
 CONFIG = confuse.Configuration('rest-chat')
-CONFIG.set_file(os.path.join(BASE_DIR, 'config/dev_config.yaml'))
+CONFIG.set_file(os.path.join(BASE_DIR, 'config/prod_config.yaml'))
 
 
 def read_key_from_file(key_name):
