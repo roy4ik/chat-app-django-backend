@@ -13,13 +13,13 @@ class MessageViewSet(ModelViewSet):
     serializer_class = MessageSerializer
 
     def list(self, request, conversation_id=None, **kwargs) -> Response:
-        """Lists all messages created by the user or with the user as receiver."""
+        """Lists all messages created by the user or with the user as recipient."""
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='/list_unread')
     def list_unread(self, request, **kwargs) -> Response:
-        """Lists all unread messages created by the user or with the user as recipient."""
+        """Lists all unread messages with the user as recipient."""
         queryset = Message.objects.filter(
             recipients__recipient_user=[request.user],
             recipient__date_read=not None)
