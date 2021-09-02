@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 import django_heroku
+import dj_database_url
 
 # !!!!! SET DJANGO_SETTINGS_MODULE=django_rest_chat.prod_settings in your environment variables
 
@@ -155,3 +156,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
+DATABASES = {'default': dj_database_url.config(conn_max_age=600, ssl_require=True)}
