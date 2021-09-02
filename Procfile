@@ -1,6 +1,3 @@
-release: python manage.py makemigrations accounts
-release: python manage.py migrate accounts
-release: python manage.py makemigrations chat
-release: python manage.py migrate chat
+release: python manage.py migrate
 
 web: gunicorn django_rest_chat.wsgi  --log-file -
