@@ -18,10 +18,11 @@ from django.urls import path, include
 from rest_framework.authtoken import views
 from rest_framework import routers
 from chat.api_views.conversations_view_set import ConversationViewSet
+from chat.api_views.messages_view_set import MessageViewSet
 
 router = routers.SimpleRouter(trailing_slash=False)
 router.register(r'Conversation', ConversationViewSet, basename='Conversation')
-router.register(r'Message', ConversationViewSet, basename='Message')
+router.register(r'Message', MessageViewSet, basename='Message')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
