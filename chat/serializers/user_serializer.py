@@ -13,4 +13,3 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'id'
         ]
-        depth = 1
