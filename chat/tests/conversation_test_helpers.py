@@ -23,24 +23,16 @@ class ConversationTestBase(TestCase):
             username='noaccess', first_name="noaccess", last_name="noaccess", email='noaccess@gmail.com',
             password='super_top_secret')
 
-    def setUp_message(self, conversation, subject, content, flip_sender_recipient=False):
-        if flip_sender_recipient:
-            tmp = self.sender
-            self.sender = self.recipient
-            self.recipient = tmp
-            # adding participants
-            with transaction.atomic():
-                conversation.participants.add(self.recipient)
-                conversation.save()
+    def setUp_message(self, conversation, subject, content, sender, recipients):
+        with transaction.atomic():
+            message = Message(
+                conversation=conversation,
+                created_by=sender,
+                subject=subject,
+                content=content, recipients=recipients)
+            message.save()
 
-                message = Message(
-                    conversation=conversation,
-                    created_by=self.sender,
-                    subject=subject,
-                    content=content)
-                message.save()
-
-            return message
+        return message
 
     def setUpConversation(self):
         with transaction.atomic():
@@ -56,28 +48,33 @@ class ConversationTestBase(TestCase):
         for n in range(n_messages):
             subject = 'TEST MESSAGE' + str(n)
             content = "Test message for conversation test" + str(n)
+            recipients = [self.recipient]
+            if n % 2 != 0:
+                recipients = [self.sender]
             messages.append(self.setUp_message(conversation,
                                                subject=subject,
                                                content=content,
-                                               flip_sender_recipient=True))
+                                               sender=self.sender,
+                                               recipients=recipients))
         return conversation, messages
 
     @staticmethod
     def set_message_read(message, reader):
-        message.recipients.get(recipient=reader).set_read()
+        message.recipients.get(recipient_user=reader).set_read()
         return message
 
     @staticmethod
     def assert_message_read(message, reader):
-        assert message.recipients.get(recipient=reader).set_read()
+        assert message.recipients.get(recipient_user=reader).set_read()
 
     def mark__conversation_read(self, conversation, reader):
         messages = Message.objects.filter(conversation=conversation,
-                                          recipients__recipient__exact=reader)
+                                          recipients=reader)
         read_messages = [self.set_message_read(message, reader) for message in messages]
         [self.assert_message_read(message, reader) for message in read_messages]
 
-    def return_viewset_response(self, url, data, viewset_class, method, action, auth_user, pk=None):
+    @staticmethod
+    def return_viewset_response(url, data, viewset_class, method, action, auth_user, pk=None):
         """sets up conversation view with force authenticate"""
         if method.upper() == 'DELETE':
             request = requests_factory.delete(url, format='json', data=data)

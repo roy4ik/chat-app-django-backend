@@ -17,12 +17,11 @@ class MessageViewSet(ModelViewSet):
         serializer = self.serializer_class(self.get_queryset(), many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='/list_unread')
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='list_unread')
     def list_unread(self, request, **kwargs) -> Response:
         """Lists all unread messages with the user as recipient."""
         queryset = Message.objects.filter(
-            recipients__recipient_user=[request.user],
-            recipient__date_read=not None)
+            recipient__recipient_user=request.user).exclude(recipients__recipient__date_read=None)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -34,17 +33,17 @@ class MessageViewSet(ModelViewSet):
         except Message.DoesNotExist:
             return Response(status=404)
 
-    @action(detail=False, methods=['put'], permission_classes=[IsAuthenticated], url_path='/read')
+    @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated], url_path='read')
     def read(self, request, *args, **kwargs) -> Response:
         """
         Marks a specific message for a user  as read.
         note: Only recipients of a message can mark it read for themselves.
         """
         try:
-            queryset = Message.objects.get(recipients__recipient_user=request.user,
-                                           pk=kwargs.get('pk'))
-            self.set_read(queryset, request.user)
-            serializer = self.serializer_class(queryset)
+            queryset = Message.objects.get(recipients=request.user, pk=kwargs.get('pk'))
+            message = self.set_read(queryset, request.user)
+            serializer = self.serializer_class(message)
+
             return Response(serializer.data)
         except Message.DoesNotExist:
             return Response(status=404)
@@ -56,7 +55,7 @@ class MessageViewSet(ModelViewSet):
         """
         try:
             queryset = Message.objects.get((Q(created_by=self.request.user)
-                                            | Q(recipients__recipient_user=self.request.user)),
+                                            | Q(recipients=self.request.user)),
                                            pk=self.kwargs.get('pk'))
             serializer = self.serializer_class(queryset)
 
@@ -74,19 +73,18 @@ class MessageViewSet(ModelViewSet):
         Returns:
             message
         """
-        message.recipients.get(recipient_user=reader).set_read()
-        return message
+        return message.recipient_set.get(recipient_user=reader).set_read().message
 
     def get_queryset(self) -> QuerySet:
         if self.request.method == 'GET':
             if self.action == 'retrieve':
                 return Message.objects.get((Q(created_by=self.request.user)
-                                            | Q(recipients__recipient_user=self.request.user)),
+                                            | Q(recipient__recipient_user=self.request.user)),
                                            pk=self.kwargs.get('pk'))
             else:
                 return Message.objects.filter(Q(created_by=self.request.user)
-                                              | Q(recipients__recipient_user=self.request.user))
+                                              | Q(recipient__recipient_user=self.request.user))
         else:
             return Message.objects.filter((Q(created_by=self.request.user)
-                                           | Q(recipients__recipient_user=self.request.user)),
+                                           | Q(recipient__recipient_user=self.request.user)),
                                           pk=self.kwargs.get('pk'))

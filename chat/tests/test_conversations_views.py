@@ -99,7 +99,6 @@ class CreateConversationTest(ConversationTestBase):
     def test_create_valid_conversation(self):
         data = {
             "name": "New Conversation",
-            "participants": [self.recipient.id],
         }
         response = self.return_viewset_response(
             url=reverse('Conversation-list'),
@@ -128,7 +127,6 @@ class UpdateConversationTest(ConversationTestBase):
         conversation = self.setUpConversation()
         data = {
             "name": "New Conversation",
-            "participants": [self.recipient.id, self.sender.id],
         }
         response = self.return_viewset_response(
             url=reverse('Conversation-list'),
@@ -158,7 +156,6 @@ class UpdateConversationTest(ConversationTestBase):
         conversation = self.setUpConversation()
         data = {
             "name": "New Conversation",
-            "participants": [self.recipient.id, self.sender.id],
         }
         response = self.return_viewset_response(
             url=reverse('Conversation-list'),
@@ -176,7 +173,6 @@ class DeleteConversationTest(ConversationTestBase):
         conversation = self.setUpConversation()
         data = {
             "name": "New Conversation",
-            "participants": [self.recipient.id],
         }
         response = self.return_viewset_response(
             url=reverse('Conversation-list'),
@@ -203,7 +199,6 @@ class DeleteConversationTest(ConversationTestBase):
         conversation = self.setUpConversation()
         data = {
             "name": "New Conversation",
-            "participants": [self.recipient.id],
         }
         response = self.return_viewset_response(
             url=reverse('Conversation-list'),

@@ -18,11 +18,12 @@ class ReadSingleMessage(ConversationTestBase):
             method='get',
             action='read',
             auth_user=conversation.created_by,
-            pk=messages[0].id)
-        serializer = self.serializer(messages[0])
+            pk=messages[1].id)
+        serializer = self.serializer(messages[1])
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        assert [recipient for recipient in response.data.get('recipients')
+        recipients = [recipient for recipient in response.data.get('recipients')]
+        assert [recipient for recipient in recipients
                 if recipient.get('date_read')
                 and recipient.get('recipient_user').get('id') == conversation.created_by.id]
         self.assertEqual(response.data, serializer.data)
@@ -75,7 +76,8 @@ class CreateMessageTest(ConversationTestBase):
         data = {
             "conversation_id": conversation.id,
             "subject": "New Subject",
-            "content": "This is a new message"
+            "content": "This is a new message",
+            "recipients": [conversation.created_by.id]
         }
         response = self.return_viewset_response(
             url=reverse('Message-list'),

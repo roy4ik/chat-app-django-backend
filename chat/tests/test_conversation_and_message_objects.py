@@ -19,9 +19,9 @@ class ConversationTestCase(ConversationTestBase):
         if not reader:
             reader = self.recipient
         conversation, messages = self.setUp_conversation_with_messages()
-        messages = Message.objects.filter(conversation=conversation, recipients__recipient_user=reader)
+        messages = Message.objects.filter(conversation=conversation, recipients=reader)
         for message in messages:
-            recipient = message.recipients.filter(recipient_user=reader).first()
+            recipient = message.recipient_set.filter(recipient_user=reader).first()
             if read and recipient:
                 assert recipient.set_read()
 
@@ -33,7 +33,8 @@ class ConversationTestCase(ConversationTestBase):
             conversation, messages = self.setUp_conversation_with_messages()
             conversations_list.append(conversation)
             messages_lists.append(messages)
-        q_conversations = Conversation.objects.filter(Q(created_by=user) | Q(participants__exact=user)).distinct()
+        q_conversations = Conversation.objects.filter(Q(created_by=user) |
+                                                      Q(messages__recipients=user)).distinct()
         assert [conv for conv in q_conversations.all()] == conversations_list
         # messages = Message.objects.filter(conversation__in=q_conversations)
         messages_by_user = []
@@ -65,7 +66,7 @@ class ConversationTestCase(ConversationTestBase):
             conversation, messages = self.setUp_conversation_with_messages()
             conversations_list.append(conversation)
             messages_lists.append(messages)
-        messages = Message.objects.filter(recipients__recipient_user=user)
+        messages = Message.objects.filter(recipients=user)
         for message in messages:
-            for recipient in message.recipients.all():
+            for recipient in message.recipient_set.all():
                 assert not recipient.is_read()
