@@ -32,8 +32,8 @@ class ConversationViewSet(ModelViewSet):
             # note: this is only for get methods as this includes other user's conversations
             if self.action == 'retrieve':
                 return Conversation.objects.filter(Q(created_by=self.request.user)
-                                            | Q(messages__recipient__recipient_user=self.request.user),
-                                            pk=self.kwargs.get('pk')).distinct()
+                                                   | Q(messages__recipient__recipient_user=self.request.user),
+                                                   pk=self.kwargs.get('pk')).distinct()
             return Conversation.objects.filter(Q(created_by=self.request.user)
                                                | Q(messages__recipient__recipient_user=self.request.user)).distinct()
         else:

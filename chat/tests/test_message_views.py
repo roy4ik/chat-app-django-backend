@@ -77,7 +77,7 @@ class CreateMessageTest(ConversationTestBase):
             "conversation_id": conversation.id,
             "subject": "New Subject",
             "content": "This is a new message",
-            "recipients": [conversation.created_by.id]
+            "recipients": [self.recipient.id]
         }
         response = self.return_viewset_response(
             url=reverse('Message-list'),

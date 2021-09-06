@@ -21,7 +21,7 @@ class MessageViewSet(ModelViewSet):
     def list_unread(self, request, **kwargs) -> Response:
         """Lists all unread messages with the user as recipient."""
         queryset = Message.objects.filter(
-            recipient__recipient_user=request.user).exclude(recipients__recipient__date_read=None)
+            recipient__recipient_user=request.user, recipients__recipient__date_read__isnull=True)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
