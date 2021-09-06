@@ -5,6 +5,12 @@ Conversations hold messages, hence please create a conversation first, and to th
 
 For testing purposes some users have been preconfigured in environments. Please don't forget to authenticate them and update the token variables - see Authentication section below
 
+The API is available on Heroku at:
+* https://dj-chat-messages.herokuapp.com/
+
+For admin login:
+* https://dj-chat-messages.herokuapp.com/admin/
+
 #Constraints:
 
 * Users can only access objects if they are authenticated, please see the authentication section below.
